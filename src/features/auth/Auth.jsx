@@ -1,15 +1,26 @@
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import styles from "./Auth.module.css";
 import { FORM_FIELDS } from "./utils";
+import { useRouter } from "next/router";
+import { useLoginMutation, useRegisterMutation } from "./api/authSlice";
 
 
 export default function AuthPage() {
+
+  const router = useRouter();
+
+
+
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
   });
+
+
+  const [login] = useLoginMutation()
+  const [register] = useRegisterMutation()
 
   const toggleMode = () => {
     setIsLogin((prev) => !prev);
@@ -21,10 +32,52 @@ export default function AuthPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(isLogin ? "Logging in:" : "Signing up:", formData);
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    if (isLogin) {
+      const { email, password } = formData;
+
+      const response = await login({
+        email,
+        password,
+      }).unwrap();
+
+      console.log("Login Success:", response);
+
+      localStorage.setItem("token", response?.data?.token);
+
+      router.push("/dashboard");
+    } else {
+      const { name, ...restOfFormData } = formData;
+
+      const registerBody = {
+        firstName: name,
+        ...restOfFormData,
+      };
+
+      const response = await register(registerBody).unwrap();
+
+      console.log("Register Success:", response);
+
+      setIsLogin(true);
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      error?.data?.message ||
+      error?.message ||
+      "Something went wrong"
+    );
+  }
+};
 
   const activeFields = FORM_FIELDS.filter((field) => {
     if (isLogin) {
