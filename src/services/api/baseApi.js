@@ -4,7 +4,7 @@ export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ 
     baseUrl: `${process.env.BACKEND_URL}`,
-    credentials: true
+    credentials: "include"
   }),
   tagTypes: ['Post'], 
   endpoints: () => ({}), 

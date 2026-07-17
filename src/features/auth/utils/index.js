@@ -24,3 +24,11 @@ export const FORM_FIELDS = [
     showInLogin: true, 
   },
 ];
+
+
+
+export const initialState = {
+    name: "",
+    email: "",
+    password: "",
+  } 
