@@ -1,22 +1,22 @@
 import { useReducer, useState } from "react";
 import styles from "./Auth.module.css";
-import { FORM_FIELDS } from "./utils";
+import { FORM_FIELDS, initialState } from "./utils";
 import { useRouter } from "next/router";
 import { useLoginMutation, useRegisterMutation } from "./api/authSlice";
+import { useDispatch } from "react-redux";
+import { successToast } from "@/services/slices/toastSlice";
 
 
 export default function AuthPage() {
 
   const router = useRouter();
+const dispatch = useDispatch();
+
 
 
 
   const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState(initialState);
 
 
   const [login] = useLoginMutation()
@@ -24,7 +24,7 @@ export default function AuthPage() {
 
   const toggleMode = () => {
     setIsLogin((prev) => !prev);
-    setFormData({ name: "", email: "", password: "" });
+    setFormData(initialState);
   };
 
   const handleChange = (e) => {
@@ -44,11 +44,15 @@ const handleSubmit = async (e) => {
         password,
       }).unwrap();
 
-      console.log("Login Success:", response);
+        if(response?.success){
+          console.log('response :>> ', response);
+          dispatch(successToast({
+            message: response?.message
+          }))
+          router.push("/dashboard");
+        }
 
-      localStorage.setItem("token", response?.data?.token);
 
-      router.push("/dashboard");
     } else {
       const { name, ...restOfFormData } = formData;
 
@@ -58,16 +62,17 @@ const handleSubmit = async (e) => {
       };
 
       const response = await register(registerBody).unwrap();
+      if(response?.success){
 
-      console.log("Register Success:", response);
-
-      setIsLogin(true);
-      setFormData({
-        name: "",
-        email: "",
-        password: "",
-      });
-    }
+        dispatch(
+          successToast({
+            message: "User Registered Successfully",
+          })
+        );
+              setIsLogin(true);
+              setFormData(initialState);
+            }
+      }
   } catch (error) {
     console.error(error);
 
