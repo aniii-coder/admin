@@ -4,7 +4,7 @@ import { FORM_FIELDS, initialState } from "./utils";
 import { useRouter } from "next/router";
 import { useLoginMutation, useRegisterMutation } from "./api/authSlice";
 import { useDispatch } from "react-redux";
-import { successToast } from "@/services/slices/toastSlice";
+import { errorToast, successToast } from "@/services/slices/toastSlice";
 
 
 export default function AuthPage() {
@@ -19,8 +19,10 @@ const dispatch = useDispatch();
   const [formData, setFormData] = useState(initialState);
 
 
-  const [login] = useLoginMutation()
-  const [register] = useRegisterMutation()
+  const [login, {isLoading: loginLoading}] = useLoginMutation()
+  const [register, {isLoading: registerLoading}] = useRegisterMutation()
+
+  const isLoading = loginLoading || registerLoading
 
   const toggleMode = () => {
     setIsLogin((prev) => !prev);
@@ -44,12 +46,14 @@ const handleSubmit = async (e) => {
         password,
       }).unwrap();
 
+      console.log('response :>> ', response);
         if(response?.success){
-          console.log('response :>> ', response);
           dispatch(successToast({
             message: response?.message
           }))
-          router.push("/dashboard");
+          router.push("/admin/dashboard");
+        }else{
+          dispatch(errorToast({message: response?.message}))
         }
 
 
@@ -75,12 +79,8 @@ const handleSubmit = async (e) => {
       }
   } catch (error) {
     console.error(error);
-
-    alert(
-      error?.data?.message ||
-      error?.message ||
-      "Something went wrong"
-    );
+ dispatch(errorToast({message: error?.error}))
+    
   }
 };
 
@@ -123,7 +123,7 @@ const handleSubmit = async (e) => {
             </div>
           ))}
 
-          <button type="submit" className={styles.submitBtn}>
+          <button type="submit" className={styles.submitBtn} disabled={isLoading}>
             {isLogin ? "Sign In" : "Sign Up"}
           </button>
         </form>

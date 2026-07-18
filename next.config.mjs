@@ -5,9 +5,10 @@ const nextConfig = {
   env: {
     BACKEND_URL: process.env.BACKEND_URL,
   },
-  experimental: {
-    allowedDevOrigins: ['192.168.0.103:3000'],
+   images: {
+    domains: ["lh3.googleusercontent.com"],
   },
+
 };
 
 export default nextConfig;

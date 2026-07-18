@@ -1,4 +1,4 @@
-import AuthPage from "../../features/auth/Auth";
+import AuthPage from "../../../features/auth/Auth";
 
 export default function index() {
   return (

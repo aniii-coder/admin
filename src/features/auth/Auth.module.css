@@ -82,7 +82,18 @@
 .submitBtn:hover {
   background-color: #2563eb;
 }
+.submitBtn:disabled,
+.submitBtn.disabled {
+  background-color: #93c5fd;
+  color: #e5e7eb;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 
+.submitBtn:disabled:hover,
+.submitBtn.disabled:hover {
+  background-color: #93c5fd;
+}
 .toggleText {
   margin-top: 24px;
   font-size: 14px;
