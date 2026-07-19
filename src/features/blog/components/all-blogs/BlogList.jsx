@@ -1,13 +1,26 @@
 import React, { useState } from "react";
 import styles from "./BlogList.module.css";
 import { useGetAllBlogsQuery } from "../../api";
+import { useRouter } from "next/router";
+// Import the required Lucide icons
+import { 
+  FileText, 
+  Eye, 
+  ThumbsUp, 
+  MessageSquare, 
+  CheckCircle2, 
+  FileEdit, 
+  MoreVertical,
+  Calendar
+} from "lucide-react";
 
 export default function BlogList() {
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [activeMenuId, setActiveMenuId] = useState(null); 
   const [sortOrder, setSortOrder] = useState("newest");
-
+  const router = useRouter();
   const [limit, setLimit] = useState(10);
   const [offset, setOffset] = useState(0);
 
@@ -21,14 +34,23 @@ export default function BlogList() {
     category: selectedCategory,
   });
 
-  const blogsData = data?.data || [];
+  const blogsData = data?.blogs || [];
+  const blogAnalytics = data?.analytics || {}; 
   const totalItems = data?.pagination?.total || 0;
+
+  const toggleMenu = (id) => {
+    setActiveMenuId(activeMenuId === id ? null : id);
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       setActiveSearch(searchInput);
       setOffset(0);
     }
+  };
+
+  const handleDelete = (id) => {
+    console.log("Delete target ID:", id);
   };
 
   const currentPage = Math.floor(offset / limit) + 1;
@@ -39,9 +61,93 @@ export default function BlogList() {
       <header className={styles.header}>
         <div>
           <h1 className={styles.pageTitle}>Admin Blog Controller</h1>
-          <p className={styles.pageSubtitle}>Manage, filter, and monitor all corporate articles.</p>
+          <p className={styles.pageSubtitle}>
+            Manage, filter, and monitor all corporate articles.
+          </p>
         </div>
+        <button
+          className={styles.createBtn}
+          onClick={() => router.push("/admin/blogs/create")}
+        >
+          + Create New Blog
+        </button>
       </header>
+
+      {/* ==================== ANALYTICS GRID WITH LUCIDE ICONS ==================== */}
+      <section className={styles.analyticsSection}>
+        <div className={styles.analyticsCard}>
+          <div className={`${styles.analyticsIcon} ${styles.iconDefault}`}>
+            <FileText size={20} />
+          </div>
+          <div className={styles.analyticsDetails}>
+            <span className={styles.analyticsLabel}>Total Blogs</span>
+            <h2 className={styles.analyticsValue}>
+              {(blogAnalytics.totalBlogs || 0).toLocaleString()}
+            </h2>
+          </div>
+        </div>
+
+        <div className={styles.analyticsCard}>
+          <div className={`${styles.analyticsIcon} ${styles.iconDefault}`}>
+            <Eye size={20} />
+          </div>
+          <div className={styles.analyticsDetails}>
+            <span className={styles.analyticsLabel}>Total Views</span>
+            <h2 className={styles.analyticsValue}>
+              {(blogAnalytics.totalViews || 0).toLocaleString()}
+            </h2>
+          </div>
+        </div>
+
+        <div className={styles.analyticsCard}>
+          <div className={`${styles.analyticsIcon} ${styles.iconDefault}`}>
+            <ThumbsUp size={20} />
+          </div>
+          <div className={styles.analyticsDetails}>
+            <span className={styles.analyticsLabel}>Total Likes</span>
+            <h2 className={styles.analyticsValue}>
+              {(blogAnalytics.totalLikes || 0).toLocaleString()}
+            </h2>
+          </div>
+        </div>
+
+        <div className={styles.analyticsCard}>
+          <div className={`${styles.analyticsIcon} ${styles.iconDefault}`}>
+            <MessageSquare size={20} />
+          </div>
+          <div className={styles.analyticsDetails}>
+            <span className={styles.analyticsLabel}>Comments</span>
+            <h2 className={styles.analyticsValue}>
+              {(blogAnalytics.totalComments || 0).toLocaleString()}
+            </h2>
+          </div>
+        </div>
+
+        <div className={styles.analyticsCard}>
+          <div className={`${styles.analyticsIcon} ${styles.iconSuccess}`}>
+            <CheckCircle2 size={20} />
+          </div>
+          <div className={styles.analyticsDetails}>
+            <span className={styles.analyticsLabel}>Published</span>
+            <h2 className={`${styles.analyticsValue} ${styles.publishedColor}`}>
+              {(blogAnalytics.publishedBlogs || 0).toLocaleString()}
+            </h2>
+          </div>
+        </div>
+
+        {/* <div className={styles.analyticsCard}>
+          <div className={`${styles.analyticsIcon} ${styles.iconWarning}`}>
+            <FileEdit size={20} />
+          </div>
+          <div className={styles.analyticsDetails}>
+            <span className={styles.analyticsLabel}>Drafts</span>
+            <h2 className={`${styles.analyticsValue} ${styles.draftsColor}`}>
+              {(blogAnalytics.draftBlogs || 0).toLocaleString()}
+            </h2>
+          </div>
+        </div> */}
+      </section>
+      {/* ============================================================================== */}
 
       {/* Control Utility bar */}
       <section className={styles.filterSection}>
@@ -55,11 +161,11 @@ export default function BlogList() {
             onKeyDown={handleKeyDown}
           />
           {activeSearch && (
-            <button 
-              className={styles.clearSearch} 
-              onClick={() => { 
-                setSearchInput(""); 
-                setActiveSearch(""); 
+            <button
+              className={styles.clearSearch}
+              onClick={() => {
+                setSearchInput("");
+                setActiveSearch("");
                 setOffset(0);
               }}
             >
@@ -74,13 +180,15 @@ export default function BlogList() {
             <select
               value={selectedCategory}
               className={styles.selectControl}
-              onChange={(e) => { 
-                setSelectedCategory(e.target.value); 
-                setOffset(0); // Reset page context on category pivot
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+                setOffset(0); 
               }}
             >
               {uniqueCategories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
               ))}
             </select>
           </div>
@@ -104,35 +212,91 @@ export default function BlogList() {
       {/* Main Core Cards Presentation Stack */}
       <main className={styles.cardsStack}>
         {isLoading ? (
-          <div className={styles.loading}>Loading structural payload from database...</div>
+          <div className={styles.loading}>
+            Loading structural payload from database...
+          </div>
         ) : error ? (
-          <div className={styles.error}>Error fetching blogs. Please try again.</div>
+          <div className={styles.error}>
+            Error fetching blogs. Please try again.
+          </div>
         ) : blogsData.length > 0 ? (
           <div className={isFetching ? styles.fetchingOverlay : ""}>
             {blogsData.map((blog) => (
               <div key={blog._id} className={styles.adminCard}>
-                <img
-                  src={blog.thumbnail || "/api/placeholder/150/100"}
-                  alt={blog.title}
-                  className={styles.cardThumbnail}
-                />
+                <div className={styles.menuContainer}>
+                  {/* Replaced text triple dots with Lucide MoreVertical icon */}
+                  <button
+                    className={styles.dotsBtn}
+                    onClick={() => toggleMenu(blog._id)}
+                  >
+                    <MoreVertical size={18} />
+                  </button>
+
+                  {activeMenuId === blog._id && (
+                    <div className={styles.dropdownMenu}>
+                      <button
+                        onClick={() => {
+                          const url = `${process.env.FRONTEND_URL}/dashboard/blog/${blog._id}?previewMode=true`;
+                          window.open(url, "_blank", "noopener,noreferrer");
+                        }}
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() =>
+                          router.push(`/admin/blogs/${blog._id}/edit`)
+                        }
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className={styles.deleteText}
+                        onClick={() => handleDelete(blog._id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+                
+                <div className={styles.cardHeader}>
+                  <img
+                    src={blog.thumbnail || "/api/placeholder/150/100"}
+                    alt={blog.title}
+                    className={styles.cardThumbnail}
+                  />
+                </div>
+
                 <div className={styles.cardBody}>
                   <div className={styles.cardHeaderRow}>
                     <h3 className={styles.blogTitle}>{blog.title}</h3>
-                    <span className={styles.categoryBadge}>{blog.category}</span>
+                    <span className={styles.categoryBadge}>
+                      {blog.category}
+                    </span>
                   </div>
                   <p className={styles.blogDescription}>{blog.description}</p>
                   <div className={styles.cardMetaRow}>
-                    <span className={styles.metaItem}>📅 {new Date(blog.createdAt).toLocaleDateString()}</span>
-                    <span className={styles.metaItem}>👁️ {(blog.views || 0).toLocaleString()} views</span>
-                    <span className={styles.metaItem}>👍 {(blog.likes || 0).toLocaleString()} likes</span>
+                    <span className={styles.metaItem}>
+                      <Calendar size={14} className={styles.metaIcon} /> 
+                      {new Date(blog.createdAt).toLocaleDateString()}
+                    </span>
+                    <span className={styles.metaItem}>
+                      <Eye size={14} className={styles.metaIcon} /> 
+                      {(blog.views || 0).toLocaleString()} views
+                    </span>
+                    <span className={styles.metaItem}>
+                      <ThumbsUp size={14} className={styles.metaIcon} /> 
+                      {(blog.likes || 0).toLocaleString()} likes
+                    </span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className={styles.noResults}>No articles match your criteria.</div>
+          <div className={styles.noResults}>
+            No articles match your criteria.
+          </div>
         )}
       </main>
 

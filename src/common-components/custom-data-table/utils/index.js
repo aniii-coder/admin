@@ -96,24 +96,24 @@ export const getTableConfig = (pathname, router) => [
       </span>
     ),
   },
-  {
-    key: "blogIds",
-    header: "Blog Count",
-    render: (value) => (
-      <span
-        style={{
-          padding: "4px 8px",
-          borderRadius: 6,
-          fontSize: 12,
-          fontWeight: 600,
-        //   background: value ? "#dcfce7" : "#fee2e2",
-        //   color: value ? "#166534" : "#991b1b",
-        }}
-      >
-        {value?.length}
-      </span>
-    ),
-  },
+  // {
+  //   key: "blogIds",
+  //   header: "Blog Count",
+  //   render: (value) => (
+  //     <span
+  //       style={{
+  //         padding: "4px 8px",
+  //         borderRadius: 6,
+  //         fontSize: 12,
+  //         fontWeight: 600,
+  //       //   background: value ? "#dcfce7" : "#fee2e2",
+  //       //   color: value ? "#166534" : "#991b1b",
+  //       }}
+  //     >
+  //       {value?.length}
+  //     </span>
+  //   ),
+  // },
 //   {
 //     key: "actions",
 //     header: "Actions",

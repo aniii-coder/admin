@@ -8,7 +8,6 @@ import styles from "./Users.module.css";
 const User = () => {
   const router = useRouter();
 
-  // --- Layout & Filter States ---
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [limit, setLimit] = useState(10);
@@ -16,7 +15,6 @@ const User = () => {
   const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState("newest");
 
-  // --- API Fetching ---
   const {
     data,
     isLoading,
@@ -33,7 +31,6 @@ const User = () => {
 
   const tableConfig = getTableConfig(router.pathname, router);
 
-  // --- Event Handlers ---
   const handleSearchKeyDown = (e) => {
     if (e.key === "Enter") {
       setPage(1);
@@ -58,7 +55,6 @@ const User = () => {
   return (
     <div className={styles.container}>
       
-      {/* Control Header Strip */}
       <div className={styles.filterToolbar}>
         <div className={styles.searchWrapper}>
           <input

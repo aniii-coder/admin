@@ -5,24 +5,27 @@ import {
   Settings, Layers, Tag, ListOrdered, X, UploadCloud 
 } from 'lucide-react';
 import styles from './BlogForm.module.css';
-import { useCreateBlogMutation } from './api';
 
 import { useRouter } from 'next/router'; 
 import { useDispatch } from 'react-redux';
 import { errorToast, successToast } from '@/services/slices/toastSlice';
+import { useGetSpecificBlogQuery } from '../../api';
+import { useCreateBlogMutation, useUpdateBlogMutation } from './api'; 
 
-function ImageUploader({ label, selectedFile, onFileChange, onFileClear, id, error }) {
+function ImageUploader({ label, selectedFile, initialImageUrl, onFileChange, onFileClear, id, error }) {
   const [previewUrl, setPreviewUrl] = useState('');
 
   useEffect(() => {
-    if (!selectedFile) {
+    if (selectedFile) {
+      const objectUrl = URL.createObjectURL(selectedFile);
+      setPreviewUrl(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    } else if (initialImageUrl) {
+      setPreviewUrl(initialImageUrl);
+    } else {
       setPreviewUrl('');
-      return;
     }
-    const objectUrl = URL.createObjectURL(selectedFile);
-    setPreviewUrl(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [selectedFile]);
+  }, [selectedFile, initialImageUrl]);
 
   const handleDropZoneChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -60,11 +63,28 @@ function ImageUploader({ label, selectedFile, onFileChange, onFileClear, id, err
   );
 }
 
-export default function BlogForm() {
+export default function BlogForm({ mode = 'create' }) {
   const dispatch = useDispatch();
   const router = useRouter();
-  const [createBlog, { isLoading: isSubmitting }] = useCreateBlogMutation();
+  const { blog_id } = router.query;
+  const isEditMode = mode === 'edit';
 
+  const [createBlog, { isLoading: isCreating }] = useCreateBlogMutation();
+  const [updateBlog, { isLoading: isUpdating }] = useUpdateBlogMutation(); 
+  
+  const isSubmitting = isCreating || isUpdating;
+
+  const {
+    data: responseData,
+    isLoading: isLoadingBlogData,
+    isError,
+  } = useGetSpecificBlogQuery(blog_id, {
+    skip: !blog_id || !isEditMode,
+  });
+
+  const blogData = responseData?.data;
+
+  // Form Field States
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [slug, setSlug] = useState('');
@@ -72,7 +92,9 @@ export default function BlogForm() {
   const [content, setContent] = useState('');
   
   const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [initialThumbnailUrl, setInitialThumbnailUrl] = useState('');
   const [bannerFile, setBannerFile] = useState(null);
+  const [initialBannerUrl, setInitialBannerUrl] = useState('');
   
   const [seoTitle, setSeoTitle] = useState('');
   const [seoDescription, setSeoDescription] = useState('');
@@ -89,6 +111,37 @@ export default function BlogForm() {
   const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
+    if (isEditMode && blogData) {
+      setTitle(blogData.title || '');
+      setDescription(blogData.description || '');
+      setSlug(blogData.slug || '');
+      setIsCustomSlug(true); 
+      setContent(blogData.content || '');
+      
+      setInitialThumbnailUrl(blogData.thumbnail || '');
+      setInitialBannerUrl(blogData.banner || '');
+      
+      const seoData = blogData.seo || {};
+      setSeoTitle(seoData.seoTitle || '');
+      setSeoDescription(seoData.seoDescription || '');
+      setCanonical(seoData.canonical || '');
+      
+      if (seoData.schemaMarkup) {
+        setSchemaMarkup(
+          typeof seoData.schemaMarkup === 'object' 
+            ? JSON.stringify(seoData.schemaMarkup, null, 2) 
+            : seoData.schemaMarkup
+        );
+      } else {
+        setSchemaMarkup('');
+      }
+
+      setTags(Array.isArray(blogData.tags) ? blogData.tags : []);
+      setToc(Array.isArray(blogData.tableOfContents) ? blogData.tableOfContents : []);
+    }
+  }, [blogData, isEditMode]);
+
+  useEffect(() => {
     if (!isCustomSlug) {
       const generatedSlug = title
         .toLowerCase()
@@ -99,7 +152,13 @@ export default function BlogForm() {
     }
   }, [title, isCustomSlug]);
 
+  // 💡 Updated effect to temporarily bypass the uncreated API endpoint
   useEffect(() => {
+    setRelatedBlogs([]); 
+    setIsLoadingRelated(false);
+    
+    /* 
+    // Temporarily disabled until /api/blogs/related endpoint is active
     if (tags.length === 0) {
       setRelatedBlogs([]);
       return;
@@ -127,6 +186,7 @@ export default function BlogForm() {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
+    */
   }, [tags]);
 
   const handleTitleChange = (e) => {
@@ -175,9 +235,16 @@ export default function BlogForm() {
 
   const validateForm = () => {
     const errors = {};
-    
+    const errorMessages = [];
+
     if (!title.trim()) {
       errors.title = "Title field cannot consist of empty spaces.";
+      errorMessages.push("Blog Title is required.");
+    }
+
+    if (!slug.trim()) {
+      errors.slug = "URL Slug cannot be left blank.";
+      errorMessages.push("URL Slug is required.");
     }
 
     if (schemaMarkup.trim()) {
@@ -185,19 +252,24 @@ export default function BlogForm() {
         JSON.parse(schemaMarkup);
       } catch (_) {
         errors.schemaMarkup = "Invalid structured object notation. Please review your JSON syntax.";
+        errorMessages.push("Schema Markup contains invalid JSON formatting syntax.");
       }
     }
 
     setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
+
+    if (errorMessages.length > 0) {
+      dispatch(errorToast({ message: errorMessages[0] }));
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
-      console.log('errors :>> ', validationErrors);
-      dispatch(errorToast({ message: "Please correct the validation errors on the form." }));
       return;
     }
 
@@ -207,40 +279,68 @@ export default function BlogForm() {
     formData.append('slug', slug.trim());
     formData.append('content', content);
     
-    if (thumbnailFile) formData.append('thumbnail', thumbnailFile);
-    if (bannerFile) formData.append('banner', bannerFile);
+    if (thumbnailFile) {
+      formData.append('thumbnail', thumbnailFile);
+    } else if (isEditMode && initialThumbnailUrl) {
+      formData.append('thumbnail', initialThumbnailUrl);
+    }
+    
+    if (bannerFile) {
+      formData.append('banner', bannerFile);
+    } else if (isEditMode && initialBannerUrl) {
+      formData.append('banner', initialBannerUrl);
+    }
     
     formData.append('seoTitle', seoTitle.trim());
     formData.append('seoDescription', seoDescription.trim());
     formData.append('canonical', canonical.trim());
-    
     formData.append('schemaMarkup', schemaMarkup.trim() === "" ? "{}" : schemaMarkup);
     formData.append('clientId', '6a5bb7f7d89993b2f5cbcfc8');
-    
     formData.append('tags', JSON.stringify(tags));
     formData.append('tableOfContents', JSON.stringify(toc));
 
     try {
-      const response = await createBlog(formData).unwrap();
-      
-      if (response) {
-        dispatch(successToast({
-          message: response?.message || "Blog post successfully published!"
-        }));
+      let response;
+      if (isEditMode) {
+        response = await updateBlog({ 
+          blog_id, 
+          blogFormDataPayload: formData 
+        }).unwrap();
+      } else {
+        response = await createBlog(formData).unwrap();
+      }
+
+      if (response?.success) {
+        dispatch(successToast({ message: response?.message || (isEditMode ? "Blog post updated successfully!" : "Blog post successfully published!") }));
         router.push("/admin/dashboard");
       } else {
-        dispatch(errorToast({ message: response?.message || "An unexpected error occurred." }));
+        dispatch(errorToast({ message: response?.message || "Operation failed. Try again." }));
       }
     } catch (err) {
       console.error("Mutation Submission Failure:", err);
-      const errMsg = err?.data?.message || "Check local server routing endpoints.";
-      dispatch(errorToast({ message: errMsg }));
+      dispatch(errorToast({ message: err?.data?.message || err?.message || "An unexpected error occurred while communicating with backend endpoints." }));
     }
   };
 
+  if (isEditMode && isLoadingBlogData) {
+    return (
+      <div style={{ display: 'flex', padding: '4rem', justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: '#4b5563', fontSize: '1.1rem' }}>Loading target document details into view workspace...</p>
+      </div>
+    );
+  }
+
+  if (isEditMode && isError) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <p style={{ color: '#ef4444' }}>Failed to retrieve requested blog information. Verify routing parameters.</p>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className={styles.formContainer}>
-      <h2>Create New Blog Post</h2>
+      <h2>{isEditMode ? "Modify Existing Blog Post" : "Create New Blog Post"}</h2>
       <hr style={{ borderColor: '#e5e7eb', marginBottom: '2rem' }} />
 
       <div className={`${styles.fieldGroup} ${validationErrors.title ? styles.fieldError : ''}`}>
@@ -267,7 +367,7 @@ export default function BlogForm() {
         />
       </div>
 
-      <div className={styles.fieldGroup}>
+      <div className={`${styles.fieldGroup} ${validationErrors.slug ? styles.fieldError : ''}`}>
         <label><Link2 size={18} /> URL Slug</label>
         <div className={styles.slugWrapper}>
           <input 
@@ -286,6 +386,7 @@ export default function BlogForm() {
             {isCustomSlug ? "Lock Dynamic" : "Custom Slug"}
           </button>
         </div>
+        {validationErrors.slug && <span className={styles.errorMessage}>{validationErrors.slug}</span>}
       </div>
 
       <div className={styles.grid2}>
@@ -293,15 +394,23 @@ export default function BlogForm() {
           id="thumbnail-upload"
           label="Thumbnail Image" 
           selectedFile={thumbnailFile} 
+          initialImageUrl={initialThumbnailUrl}
           onFileChange={setThumbnailFile} 
-          onFileClear={() => setThumbnailFile(null)} 
+          onFileClear={() => {
+            setThumbnailFile(null);
+            setInitialThumbnailUrl('');
+          }} 
         />
         <ImageUploader 
           id="banner-upload"
           label="Banner Image" 
           selectedFile={bannerFile} 
+          initialImageUrl={initialBannerUrl}
           onFileChange={setBannerFile} 
-          onFileClear={() => setBannerFile(null)} 
+          onFileClear={() => {
+            setBannerFile(null);
+            setInitialBannerUrl('');
+          }} 
         />
       </div>
 
@@ -396,8 +505,8 @@ export default function BlogForm() {
               <p style={{ color: '#9ca3af', fontSize: '0.9rem', margin: 0 }}>Write sub-sections structured with H2 headings inside the editor zone to auto-generate index nodes.</p>
             ) : (
               <ul className={styles.previewList}>
-                {toc.map(heading => (
-                  <li key={heading.id}>📌 {heading.text}</li>
+                {toc.map((heading, i) => (
+                  <li key={heading.id || i}>📌 {heading.text}</li>
                 ))}
               </ul>
             )}
@@ -432,7 +541,11 @@ export default function BlogForm() {
         disabled={isSubmitting} 
         className={`${styles.submitBtn} ${isSubmitting ? styles.submitBtnDisabled : ''}`}
       >
-        {isSubmitting ? "Publishing Post Assets..." : "Publish System Blog Post"}
+        {isSubmitting 
+          ? "Processing Assets..." 
+          : isEditMode 
+            ? "Update System Blog Post" 
+            : "Publish System Blog Post"}
       </button>
     </form>
   );
