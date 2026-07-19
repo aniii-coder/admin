@@ -1,0 +1,439 @@
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1f2937;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 1rem;
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+}
+
+.pageSubtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Operational Search and Filter Layout Bar */
+.filterSection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  justify-content: space-between;
+  align-items: flex-end;
+  background-color: #ffffff;
+  padding: 1.25rem;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 2rem;
+}
+
+.searchWrapper {
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.625rem 2.25rem 0.625rem 0.875rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 0.9rem;
+  color: #111827;
+  background-color: #f9fafb;
+  box-sizing: border-box;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #2563eb;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.clearSearch {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.actionsGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.selectWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.fieldLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.selectControl {
+  padding: 0.55rem 2rem 0.55rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 0.875rem;
+  background-color: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  min-width: 160px;
+}
+
+/* Admin Dashboard Custom Non-Table Vertical Lists Layout */
+.cardsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.adminCard {
+  display: flex;
+  position: relative;
+  gap: 1.25rem;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem;
+  align-items: center;
+  transition: box-shadow 0.2s ease;
+}
+
+.adminCard:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.cardThumbnail {
+  width: 130px;
+  height: 85px;
+  object-fit: cover;
+  border-radius: 6px;
+  background-color: #f3f4f6;
+  flex-shrink: 0;
+}
+
+.cardBody {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.cardHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.blogTitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.categoryBadge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  margin-right: 25px;
+}
+
+.blogDescription {
+  font-size: 0.85rem;
+  color: #4b5563;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.metaItem {
+  font-size: 0.775rem;
+  color: #6b7280;
+  font-weight: 500;
+      display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.noResults {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px dashed #d1d5db;
+  font-size: 0.95rem;
+}
+
+/* Pagination Control Toolbar Box */
+.paginationToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  background-color: #ffffff;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.perPageSelector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolbarText {
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.pageSizeSelect {
+  padding: 0.35rem 1.5rem 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  cursor: pointer;
+}
+
+.navigationControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pageIndicator {
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+.pageBtn {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.pageBtn:disabled {
+  color: #9ca3af;
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+}
+
+@media (max-width: 640px) {
+  .adminCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .cardThumbnail {
+    width: 100%;
+    height: 150px;
+  }
+  .cardHeaderRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
+
+/* Update your header CSS to allow for layout (Flexbox) */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.createBtn {
+  background-color: #3b82f6; /* Modern Blue */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.createBtn:hover {
+  background-color: #2563eb;
+}
+
+.createBtn:active {
+  transform: scale(0.98);
+}
+
+
+.cardHeader {
+  position: relative; /* Important for the dropdown positioning */
+}
+
+.menuContainer {
+  position: absolute;
+  top: 18px;
+  right: 10px;
+}
+
+.dotsBtn {
+  background: rgba(255,255,255,0.8);
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+}
+
+.dropdownMenu {
+  position: absolute;
+  right: 0;
+  top: 35px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  min-width: 100px;
+}
+
+.dropdownMenu button {
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdownMenu button:hover {
+  background: #f4f4f4;
+}
+
+.deleteText {
+  color: #e74c3c;
+}
+
+
+.analyticsSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.analyticsCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.analyticsIcon {
+  font-size: 1.5rem;
+  background: #f8fafc;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.analyticsDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.analyticsLabel {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.analyticsValue {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 2px 0 0 0;
+}
+
+.publishedColor {
+  color: #16a34a; /* Vibrant emerald green text node */
+}
+
+.draftsColor {
+  color: #ea580c; /* Vivid amber orange text node */
+}

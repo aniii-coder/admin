@@ -1,0 +1,375 @@
+.formContainer {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1e293b;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: #f8fafc;
+}
+
+/* Header Area styling */
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.formTitle {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+}
+
+.btnPrimary, .btnSecondary {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnPrimary {
+  background-color: #4f46e5;
+  color: #ffffff;
+  border: none;
+}
+
+.btnPrimary:hover {
+  background-color: #4338ca;
+}
+
+.btnSecondary {
+  background-color: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.btnSecondary:hover {
+  background-color: #f1f5f9;
+}
+
+/* Layout Structural Design */
+.formBody {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+.mainContentColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.sidebarColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Atomic Form Component Items */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.subLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.input, .textarea, .inputSmall, .textareaSmall, .codeTextareaSmall {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  background-color: #ffffff;
+  transition: border-color 0.15s ease;
+}
+
+.input:focus, .textarea:focus, .inputSmall:focus, .textareaSmall:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 1px #4f46e5;
+}
+
+/* Dynamic Slug Control */
+.slugControlGroup {
+  background-color: #f1f5f9;
+  padding: 14px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toggleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toggleLabel {
+  font-size: 13px;
+  color: #475569;
+}
+
+.slugPreviewWrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.domainPrefix {
+  padding: 0 12px;
+  font-size: 13px;
+  color: #94a3b8;
+  background-color: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  user-select: none;
+}
+
+.slugInput {
+  flex: 1;
+  border: none;
+  padding: 8px 12px;
+  font-size: 13px;
+  outline: none;
+  color: #334155;
+}
+
+.slugInput:disabled {
+  background-color: #f8fafc;
+  color: #64748b;
+}
+
+/* iOS Minimal Switch Button Toggle */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #cbd5e1;
+  transition: .3s;
+  border-radius: 22px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+.switch input:checked + .slider {
+  background-color: #10b981;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+/* Rich Text Editor Module */
+.editorWrapper {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.editorToolbar {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f8fafc;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.toolbarLeft {
+  display: flex;
+  gap: 6px;
+}
+
+.toolBtn, .toolBtnCode {
+  background: none;
+  border: 1px solid transparent;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #475569;
+}
+
+.toolBtn:hover, .toolBtnCode:hover {
+  background-color: #e2e8f0;
+}
+
+.activeTool {
+  background-color: #e2e8f0;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.editorArea, .codeEditor {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 350px;
+  padding: 16px;
+  border: none;
+  resize: vertical;
+  outline: none;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.codeEditor {
+  font-family: 'Courier New', Courier, monospace;
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+/* Dropzone Stylesheet Asset Manager */
+.dropZone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dropZone:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.dropZoneText {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Dynamic Badge Tags Section */
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #ffffff;
+}
+
+.tagBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tagRemoveBtn {
+  background: none;
+  border: none;
+  color: #0369a1;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  line-height: 1;
+}
+
+.tagInput {
+  border: none;
+  outline: none;
+  flex: 1;
+  min-width: 120px;
+  font-size: 13px;
+  padding: 4px;
+}
+
+/* Accordion Component */
+.accordionSection {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.accordionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background-color: #f8fafc;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+}
+
+.accordionContent {
+  padding: 16px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background-color: #ffffff;
+}
+
+.inputSmall { padding: 8px 10px; font-size: 13px; }
+.textareaSmall { padding: 8px 10px; font-size: 13px; resize: vertical; }
+.codeTextareaSmall { 
+  font-family: monospace; 
+  padding: 8px 10px; 
+  font-size: 12px; 
+  background-color: #f8fafc; 
+}

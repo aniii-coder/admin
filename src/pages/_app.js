@@ -1,5 +1,25 @@
-import "@/styles/globals.css";
+// src/pages/_app.js
 
-export default function App({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+import "@/styles/globals.css";
+import { Provider } from "react-redux";
+import { store } from "../store";
+import Toast from "@/common-components/toast/Toast";
+import RootLayout from "@/common-components/root-layout/RootLayout";
+export default function App({ Component, pageProps, router }) {
+  const isAdminRoute = router.pathname.startsWith("/admin/auth");
+  // const isAdminRoute = true;
+  console.log('isAdminRoute :>> ', isAdminRoute);
+  return (
+    <Provider store={store}>
+      <Toast />
+
+      {!isAdminRoute ? (
+        <RootLayout>
+          <Component {...pageProps} />
+        </RootLayout>
+      ) : (
+        <Component {...pageProps} />
+      )}
+    </Provider>
+  );
 }
