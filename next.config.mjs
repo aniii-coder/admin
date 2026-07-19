@@ -4,6 +4,7 @@ const nextConfig = {
   reactStrictMode: true,
   env: {
     BACKEND_URL: process.env.BACKEND_URL,
+    EDITOR_KEY: process.env.EDITOR_KEY
   },
    images: {
     domains: ["lh3.googleusercontent.com"],

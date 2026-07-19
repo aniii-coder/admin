@@ -8,7 +8,14 @@ export const clientApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getSpecificUserData: builder.query({
+  query: (id) => ({
+    url: `/client/${id}`,
+    method: "GET",
   }),
+}),
+  }),
+  
 
   overrideExisting: false,
 });
@@ -16,4 +23,6 @@ export const clientApi = baseApi.injectEndpoints({
 export const {
   useGetAllLinkedUserQuery,
   useLazyGetAllLinkedUserQuery,
+    useGetSpecificUserDataQuery,
+
 } = clientApi;

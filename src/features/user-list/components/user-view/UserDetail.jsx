@@ -1,34 +1,59 @@
-import React from 'react';
-import { 
-  Mail, 
-  Calendar, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  FileText, 
-  Heart, 
-  MessageSquare, 
-  Bookmark, 
-  ShieldCheck 
-} from 'lucide-react';
-import styles from './UserDetail.module.css';
+import React, { useEffect, useState } from "react";
+import {
+  Mail,
+  Calendar,
+  Clock,
+  CheckCircle,
+  XCircle,
+  FileText,
+  Heart,
+  MessageSquare,
+  Bookmark,
+  ShieldCheck,
+} from "lucide-react";
+import styles from "./UserDetail.module.css";
+import { useRouter } from "next/router";
+import { useGetSpecificUserDataQuery } from "../../api";
+import CustomDataTable from "@/common-components/custom-data-table/CustomDataTable";
+import { getBlogTableConfig } from "../../utils";
 
 // Component receives the single user object as a prop
-export default function UserDetail({ user }) {
-  if (!user) return <div className={styles.noData}>No user profiles found.</div>;
+export default function UserDetail() {
+    
+    const router = useRouter();
+    const { user_id: id } = router.query;
+    const tableConfig = getBlogTableConfig(router);
+    const [user, setUser] = useState(null);
+    
+    const { data, isLoading, isError, isSuccess } = useGetSpecificUserDataQuery(
+        id,
+        {
+      skip: !id, // prevents request until id is available
+    },
+  );
+  
+  useEffect(() => {
+    if (!data) return;
+    if (data?.data && isSuccess) {
+      setUser(data?.data);
+    }
+}, [data]);
 
-  // Formatting date helpers
-  const formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A';
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+console.log("data :>> ", data, router);
+
+// Formatting date helpers
+const formatDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
-  };
+};
 
+if (!user) return <div className={styles.noData}>No user profiles found.</div>;
   return (
     <div className={styles.detailContainer}>
       
@@ -62,7 +87,6 @@ export default function UserDetail({ user }) {
         </div>
       </div>
 
-      {/* 2. STATS QUICK-GRIDS */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <div className={`${styles.statIcon} ${styles.blue}`}>
@@ -105,7 +129,6 @@ export default function UserDetail({ user }) {
         </div>
       </div>
 
-      {/* 3. SYSTEM DATA TIMESTAMPS */}
       <div className={styles.metaCard}>
         <h3 className={styles.sectionTitle}>System Metadata</h3>
         <div className={styles.metaGrid}>
@@ -134,21 +157,10 @@ export default function UserDetail({ user }) {
       </div>
 
       {/* 4. CHOSEN DATATABLE SLOT PLACEHOLDER */}
-      <div className={styles.tableSlotWrapper}>
-        <div className={styles.tableSlotHeader}>
-          <h2 className={styles.sectionTitle}>Authored Blog Logs ({user.blogIds?.length || 0})</h2>
-          <p className={styles.sectionSubtitle}>Manage the articles and data blocks published by this administrator node.</p>
-        </div>
-        
-        <div className={styles.actualDataTableContainer}>
-          {/* PLACE YOUR <CustomDataTable /> HERE */}
-          <div className={styles.devPlaceholder}>
-            <FileText size={32} />
-            <p><strong>[ CustomDataTable Slot ]</strong></p>
-            <p>Inject your table grid inside this block passing your config arrays.</p>
-          </div>
-        </div>
-      </div>
+     <CustomDataTable 
+     config={tableConfig}
+     data={user?.blogIds}
+     />
 
     </div>
   );
