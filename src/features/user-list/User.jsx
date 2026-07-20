@@ -67,28 +67,6 @@ const User = () => {
           />
         </div>
 
-        <div className={styles.dropdownGroup}>
-          <select value={category} onChange={handleCategoryChange} className={styles.selectFilter}>
-            <option value="">All Categories</option>
-            <option value="engineering">Engineering</option>
-            <option value="design">Design</option>
-            <option value="updates">Product Updates</option>
-          </select>
-
-          <select value={sortBy} onChange={handleSortChange} className={styles.selectFilter}>
-            <option value="newest">Newest to Oldest</option>
-            <option value="oldest">Oldest to Newest</option>
-            <option value="alphabetical">A - Z (Alphabetical)</option>
-          </select>
-
-          <select value={limit} onChange={handleLimitChange} className={styles.selectFilter}>
-            <option value={10}>10 per page</option>
-            <option value={20}>20 per page</option>
-            <option value={30}>30 per page</option>
-            <option value={40}>40 per page</option>
-            <option value={50}>50 per page</option>
-          </select>
-        </div>
       </div>
 
       <div className={styles.tableContentArea}>
