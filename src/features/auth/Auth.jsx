@@ -42,7 +42,9 @@ export default function AuthPage() {
 
         console.log('response :>> ', response);
         if (response?.success) {
+          document.cookie = `accessToken=${response.token}; Path=/; Max-Age=3600; SameSite=Lax`;
           dispatch(successToast({ message: response?.message || "Logged in successfully!" }));
+
           router.push("/admin/dashboard");
         } else {
           dispatch(errorToast({ message: response?.message || "Login failed. Please try again." }));
