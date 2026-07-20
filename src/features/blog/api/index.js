@@ -27,6 +27,13 @@ export const blogApi = baseApi.injectEndpoints({
       },
       keepUnusedDataFor: 300, 
     }),
+
+    deleteBlog: builder.mutation({
+      query: (id) => ({
+        url: `/blogs/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -34,4 +41,5 @@ export const blogApi = baseApi.injectEndpoints({
 export const {
   useGetSpecificBlogQuery,
   useGetAllBlogsQuery,
+  useDeleteBlogMutation, 
 } = blogApi;

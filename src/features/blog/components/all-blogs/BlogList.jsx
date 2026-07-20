@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import styles from "./BlogList.module.css";
-import { useGetAllBlogsQuery } from "../../api";
+import { useGetAllBlogsQuery, useDeleteBlogMutation } from "../../api";
 import { useRouter } from "next/router";
-// Import the required Lucide icons
+import { useDispatch } from "react-redux"; // ✨ Redux hook import kiya
+// import { successToast, errorToast } from "@/store/slices/uiSlice"; // ✨ Apne project ke correct path se replace karein
+
 import { 
   FileText, 
   Eye, 
   ThumbsUp, 
   MessageSquare, 
   CheckCircle2, 
-  FileEdit, 
   MoreVertical,
   Calendar
 } from "lucide-react";
+import { errorToast, successToast } from "@/services/slices/toastSlice";
 
 export default function BlogList() {
   const [searchInput, setSearchInput] = useState("");
@@ -21,18 +23,21 @@ export default function BlogList() {
   const [activeMenuId, setActiveMenuId] = useState(null); 
   const [sortOrder, setSortOrder] = useState("newest");
   const router = useRouter();
+  const dispatch = useDispatch(); // ✨ Redux dispatch hook initialized
   const [limit, setLimit] = useState(10);
   const [offset, setOffset] = useState(0);
 
   const uniqueCategories = ["All", "Tech", "Lifestyle", "Business", "Design"];
 
-  const { data, error, isLoading, isFetching } = useGetAllBlogsQuery({
+  const { data, error, isLoading, isFetching, refetch } = useGetAllBlogsQuery({
     search: activeSearch,
     limit,
     offset,
     sort: sortOrder,
     category: selectedCategory,
   });
+
+  const [deleteBlog, { isLoading: isDeleting }] = useDeleteBlogMutation();
 
   const blogsData = data?.blogs || [];
   const blogAnalytics = data?.analytics || {}; 
@@ -49,8 +54,27 @@ export default function BlogList() {
     }
   };
 
-  const handleDelete = (id) => {
-    console.log("Delete target ID:", id);
+  // ✨ Cleaned dynamic delete management via Redux Toast actions
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this blog?")) return;
+
+    setActiveMenuId(null); 
+
+    try {
+      const response = await deleteBlog(id).unwrap();
+      
+      dispatch(successToast({ 
+        message: response?.message || "Blog deleted successfully!" 
+      }));
+      
+      refetch(); 
+    } catch (err) {
+      console.error("Mutation Submission Failure:", err);
+      
+      dispatch(errorToast({ 
+        message: err?.data?.message || err?.message || "Failed to delete the blog." 
+      }));
+    }
   };
 
   const currentPage = Math.floor(offset / limit) + 1;
@@ -73,7 +97,6 @@ export default function BlogList() {
         </button>
       </header>
 
-      {/* ==================== ANALYTICS GRID WITH LUCIDE ICONS ==================== */}
       <section className={styles.analyticsSection}>
         <div className={styles.analyticsCard}>
           <div className={`${styles.analyticsIcon} ${styles.iconDefault}`}>
@@ -129,27 +152,13 @@ export default function BlogList() {
           </div>
           <div className={styles.analyticsDetails}>
             <span className={styles.analyticsLabel}>Published</span>
-            <h2 className={`${styles.analyticsValue} ${styles.publishedColor}`}>
+            <h2 className={styles.analyticsValue}>
               {(blogAnalytics.publishedBlogs || 0).toLocaleString()}
             </h2>
           </div>
         </div>
-
-        {/* <div className={styles.analyticsCard}>
-          <div className={`${styles.analyticsIcon} ${styles.iconWarning}`}>
-            <FileEdit size={20} />
-          </div>
-          <div className={styles.analyticsDetails}>
-            <span className={styles.analyticsLabel}>Drafts</span>
-            <h2 className={`${styles.analyticsValue} ${styles.draftsColor}`}>
-              {(blogAnalytics.draftBlogs || 0).toLocaleString()}
-            </h2>
-          </div>
-        </div> */}
       </section>
-      {/* ============================================================================== */}
 
-      {/* Control Utility bar */}
       <section className={styles.filterSection}>
         <div className={styles.searchWrapper}>
           <input
@@ -209,7 +218,6 @@ export default function BlogList() {
         </div>
       </section>
 
-      {/* Main Core Cards Presentation Stack */}
       <main className={styles.cardsStack}>
         {isLoading ? (
           <div className={styles.loading}>
@@ -220,14 +228,14 @@ export default function BlogList() {
             Error fetching blogs. Please try again.
           </div>
         ) : blogsData.length > 0 ? (
-          <div className={isFetching ? styles.fetchingOverlay : ""}>
+          <div className={isFetching || isDeleting ? styles.fetchingOverlay : ""}>
             {blogsData.map((blog) => (
               <div key={blog._id} className={styles.adminCard}>
                 <div className={styles.menuContainer}>
-                  {/* Replaced text triple dots with Lucide MoreVertical icon */}
                   <button
                     className={styles.dotsBtn}
                     onClick={() => toggleMenu(blog._id)}
+                    disabled={isDeleting}
                   >
                     <MoreVertical size={18} />
                   </button>
@@ -286,7 +294,7 @@ export default function BlogList() {
                     </span>
                     <span className={styles.metaItem}>
                       <ThumbsUp size={14} className={styles.metaIcon} /> 
-                      {(blog.likes || 0).toLocaleString()} likes
+                      {(blog.likesCount || 0).toLocaleString()} likes
                     </span>
                   </div>
                 </div>
@@ -300,7 +308,6 @@ export default function BlogList() {
         )}
       </main>
 
-      {/* Pagination Controller Layout Toolbar */}
       <footer className={styles.paginationToolbar}>
         <div className={styles.perPageSelector}>
           <span className={styles.toolbarText}>View</span>
@@ -321,7 +328,7 @@ export default function BlogList() {
 
         <div className={styles.navigationControls}>
           <button
-            disabled={currentPage === 1 || isLoading || isFetching}
+            disabled={currentPage === 1 || isLoading || isFetching || isDeleting}
             onClick={() => setOffset((prev) => Math.max(0, prev - limit))}
             className={styles.pageBtn}
           >
@@ -331,7 +338,7 @@ export default function BlogList() {
             Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
           </span>
           <button
-            disabled={currentPage === totalPages || isLoading || isFetching}
+            disabled={currentPage === totalPages || isLoading || isFetching || isDeleting}
             onClick={() => setOffset((prev) => prev + limit)}
             className={styles.pageBtn}
           >
